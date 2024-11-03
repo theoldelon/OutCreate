@@ -2,22 +2,23 @@
 
 namespace App\Http\Controllers;
 
-use App\Mail\ResetPasswordEmail;
-use App\Models\Category;
+use DB;
 use App\Models\Job;
-use App\Models\JobApplication;
-use App\Models\JobType;
-use App\Models\SavedJob;
 use App\Models\User;
+use App\Models\JobType;
+use App\Models\Category;
+use App\Models\SavedJob;
+use Illuminate\Support\Str;
 use Illuminate\Http\Request;
+use App\Models\JobApplication;
+use App\Mail\ResetPasswordEmail;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
-use Illuminate\Support\Facades\Validator;
 use Intervention\Image\ImageManager;
+use Illuminate\Support\Facades\Validator;
 use Intervention\Image\Drivers\Gd\Driver;
-use Illuminate\Support\Str;
 
 class AccountController extends Controller
 {
@@ -73,7 +74,7 @@ class AccountController extends Controller
         if ($validator->passes()) {
             
             if (Auth::attempt(['email' => $request->email, 'password' => $request->password])) {
-                return redirect()->route('account.profile');
+                return redirect()->route('home');
             } else {
                 return redirect()->route('account.login')->with('error','Either Email/Password is incorrect');
             }
@@ -96,39 +97,44 @@ class AccountController extends Controller
         ]);
     }
 
-    public function updateProfile(Request $request) {
+ public function updateProfile(Request $request)
+    {
 
         $id = Auth::user()->id;
 
         $validator = Validator::make($request->all(),[
             'name' => 'required|min:5|max:20',
-            'email' => 'required|email|unique:users,email,'.$id.',id'
+            'email' => 'required|email|unique:users,email,' . $id,
         ]);
 
+        if ($validator->passes()) 
+        {
 
-        if ($validator->passes()) {
+            session()->flash('success', 'Profile updated!');
 
             $user = User::find($id);
-            $user->name = $request->name;
-            $user->email = $request->email;
-            $user->mobile = $request->mobile;
-            $user->designation = $request->designation;
+            $user->name = $request->input('name');
+            $user->email = $request->input('email');
+            $user->mobile = $request->input('mobile');
+            $user->designation = $request->input('designation');
+            $user->hourly_rate = $request->input('hourly_rate');
+            $user->availability = $request->input('availability');
+            $user->bio = $request->input('bio');
+            $user->skills = $request->input('skills');
+            $user->website = $request->input('website');
             $user->save();
-
-            session()->flash('success','Profile updated successfully.');
-
             return response()->json([
                 'status' => true,
                 'errors' => []
             ]);
 
-        } else {
+        }
+        else {
             return response()->json([
                 'status' => false,
                 'errors' => $validator->errors()
             ]);
         }
-
     }
 
     public function logout() {
@@ -420,7 +426,6 @@ class AccountController extends Controller
         ]);
 
     }
-
     public function updatePassword(Request $request){
         $validator = Validator::make($request->all(),[
             'old_password' => 'required',
@@ -492,7 +497,7 @@ class AccountController extends Controller
     }
 
     public function resetPassword($tokenString) {
-        $token = \DB::table('password_reset_tokens')->where('token',$tokenString)->first();
+        $token = DB::table('password_reset_tokens')->where('token',$tokenString)->first();
 
         if ($token == null) {
             return redirect()->route('account.forgotPassword')->with('error','Invalid token.');
@@ -526,5 +531,14 @@ class AccountController extends Controller
 
         return redirect()->route('account.login')->with('success','You have successfully changed your password.');
 
+    }
+
+
+    public function show($id)
+    {
+        // Retrieve the user by ID (or however you want to fetch the data)
+        $user = User::findOrFail($id); // Make sure to import the User model at the top
+
+        return view('front.account.show', compact('user')); // Adjust the view path as needed
     }
 }

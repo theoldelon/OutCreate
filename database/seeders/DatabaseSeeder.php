@@ -2,7 +2,10 @@
 
 namespace Database\Seeders;
 
-// use Illuminate\Database\Console\Seeds\WithoutModelEvents;
+use App\Models\Job;
+use App\Models\User;
+use App\Models\JobType;
+use App\Models\Category;
 use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder
@@ -12,18 +15,14 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        //\App\Models\User::factory(10)->create();
+        // Create Users first
+        User::factory(10)->create(); // Adjust the number of users as needed
 
-        // \App\Models\User::factory()->create([
-        //     'name' => 'Test User',
-        //     'email' => 'test@example.com',
-        // ]);
+        // Create Job Types and Categories
+        JobType::factory(7)->create(); // Adjust the number as needed
+        Category::factory(7)->create(); // Adjust the number as needed
 
-        // \App\Models\Category::factory(5)->create();
-        // \App\Models\JobType::factory(5)->create();
-
-        //\App\Models\Job::factory(20)->create();
-
-
+        // Then create jobs
+        Job::factory()->count(15)->create(); // Adjust the count as needed
     }
 }

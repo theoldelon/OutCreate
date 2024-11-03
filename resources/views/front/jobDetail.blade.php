@@ -3,215 +3,319 @@
 @section('main')
 <section class="section-4 bg-2">    
     <div class="container pt-5">
+        <!-- Breadcrumb -->
         <div class="row">
             <div class="col">
-                <nav aria-label="breadcrumb" class=" rounded-3 p-3">
+                <nav aria-label="breadcrumb" class="rounded-3 p-3 bg-light shadow-sm">
                     <ol class="breadcrumb mb-0">
-                        <li class="breadcrumb-item"><a href="{{ route('jobs') }}"><i class="fa fa-arrow-left" aria-hidden="true"></i> &nbsp;Back to Jobs</a></li>
+                        <li class="breadcrumb-item">
+                            <a href="{{ route('jobs') }}" class="text-decoration-none text-primary">
+                                <i class="fa fa-arrow-left" aria-hidden="true"></i> &nbsp;Back to Jobs
+                            </a>
+                        </li>
                     </ol>
                 </nav>
             </div>
-        </div> 
+        </div>
     </div>
-    <div class="container job_details_area">
+
+    <div id="message-container" class="{{ session('success') || session('error') ? '' : 'hidden' }} fixed top-4 left-1/2 transform -translate-x-1/2 z-50 transition duration-300 {{ session('success') ? 'bg-green-500' : 'bg-red-500' }} text-white p-4 rounded-md">
+        <span id="message-text">
+            {{ session('success') ?? session('error') }}
+        </span>
+    </div>
+    
+    <!-- Loading Spinner -->
+    <div id="loading-spinner" style="display:none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 9999;">
+        <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Loading...</span>
+        </div>
+    </div>
+    
+    <div class="container job_details_area mt-4">
         <div class="row pb-5">
+            <!-- Job Details Section -->
             <div class="col-md-8">
-                @include('front.message')
-                <div class="card shadow border-0">
-                    <div class="job_details_header">
-                        <div class="single_jobs white-bg d-flex justify-content-between">
-                            <div class="jobs_left d-flex align-items-center">
-                                
-                                <div class="jobs_conetent">
-                                    <a href="#">
-                                        <h4>{{ $job->title }}</h4>
-                                    </a>
-                                    <div class="links_locat d-flex align-items-center">
-                                        <div class="location">
-                                            <p> <i class="fa fa-map-marker"></i> {{ $job->location }}</p>
+                <div class="card shadow-sm border-0">
+                    <div class="job_details_header p-4">
+                        <div class="single_jobs d-flex justify-content-between align-items-center">
+                            <div class="jobs_content">
+                                <h4 class="fw-bold">{{ $job->title }}</h4>
+                                <div class="d-flex mt-2">
+                                    @if(!empty($job->location))
+                                        <div class="me-3">
+                                            <i class="fa fa-map-marker-alt" aria-hidden="true" title="Location"></i> {{ $job->location }}
                                         </div>
-                                        <div class="location">
-                                            <p> <i class="fa fa-clock-o"></i> {{ $job->jobType->name }}</p>
+                                    @endif
+                                    @if(!empty($job->jobType->name))
+                                        <div>
+                                            <i class="fa fa-clock" aria-hidden="true" title="Job Type"></i> {{ $job->jobType->name }}
                                         </div>
-                                    </div>
+                                    @endif
                                 </div>
                             </div>
                             <div class="jobs_right">
-                                <div class="apply_now {{ ($count == 1) ? 'saved-job' : '' }}">
-                                    <a class="heart_mark " href="javascript:void(0);" onclick="saveJob({{ $job->id }})"> <i class="fa fa-heart-o" aria-hidden="true"></i></a>
-                                </div>
+                                <a class="heart_mark {{ ($count == 1) ? 'saved-job' : '' }}" href="javascript:void(0)" onclick="saveJob({{ $job->id }})" aria-label="Save Job">
+                                    <i class="fa {{ ($count == 1) ? 'fa-heart' : 'fa-heart-o' }}" aria-hidden="true"></i>
+                                </a>
                             </div>
                         </div>
                     </div>
-                    <div class="descript_wrap white-bg">
-                        <div class="single_wrap">
-                            <h4>Job description</h4>
-                            {!! nl2br($job->description) !!}
-                            
-                            
-                        </div>
-                        @if (!empty($job->responsibility))
-                        <div class="single_wrap">
-                            <h4>Responsibility</h4>
-                            {!! nl2br($job->responsibility) !!}
-                        </div>
-                        @endif
-                        @if (!empty($job->qualifications))
-                        <div class="single_wrap">
-                            <h4>Qualifications</h4>
-                            {!! nl2br($job->qualifications) !!}
-                        </div>
-                        @endif
-                        @if (!empty($job->benefits))
-                        <div class="single_wrap">
-                            <h4>Benefits</h4>
-                            {!! nl2br($job->benefits) !!}
-                        </div>
-                        @endif
-                        <div class="border-bottom"></div>
-                        <div class="pt-3 text-end">
-                            
-                            @if (Auth::check())
-                                <a href="#" onclick="saveJob({{ $job->id }});" class="btn btn-secondary">Save</a>  
-                            @else
-                                <a href="javascript:void(0);" class="btn btn-secondary disabled">Login to Save</a>
-                            @endif
-
-                            @if (Auth::check())
-                                <a href="#" onclick="applyJob({{ $job->id }})" class="btn btn-primary">Apply</a>
-                            @else
-                                <a href="javascript:void(0);" class="btn btn-primary disabled">Login to Apply</a>
-                            @endif
-                            
-
-                        </div>
-                    </div>
-                </div>
-
-                @if (Auth::user())
-                   @if (Auth::user()->id == $job->user_id)
-                       
-                   
-                
-                <div class="card shadow border-0 mt-4">
-                    <div class="job_details_header">
-                        <div class="single_jobs white-bg d-flex justify-content-between">
-                            <div class="jobs_left d-flex align-items-center">
-                                <div class="jobs_conetent">                                    
-                                    <h4>Applicants</h4>                                    
-                                </div>
+            
+                    <!-- Job Details Content -->
+                    <div class="descript_wrap p-4">
+                        @if(!empty($job->description))
+                            <div class="mb-4 bg-light p-3 rounded">
+                                <h5 class="fw-bold">Job Description</h5>
+                                <p>{!! nl2br(e(strip_tags($job->description))) !!}</p>
                             </div>
-                            <div class="jobs_right"></div>
-                        </div>
-                    </div>
-                    <div class="descript_wrap white-bg">
-                        <table class="table table-striped">
-                            <tr>
-                                <th>Name</th>
-                                <th>Email</th>
-                                <th>Mobile</th>
-                                <th>Applied Date</th>
-                            </tr>
-                            @if ($applications->isNotEmpty())
-                                @foreach ($applications as $application)
-                                <tr>
-                                    <td>{{ $application->user->name  }}</td>
-                                    <td>{{ $application->user->email  }}</td>
-                                    <td>{{ $application->user->mobile  }}</td>
-                                    <td>
-                                        {{ \Carbon\Carbon::parse($application->applied_date)->format('d M, Y') }}
-                                    </td>
-                                </tr> 
-                                @endforeach
-                                @else
-                                <tr>
-                                    <td colspan="3">Applicants not found</td>
-                                </tr>
-                            @endif
-                            
-                        </table>
+                        @endif
                         
-                    </div>
+                        @if(!empty($job->responsibility))
+                            <div class="mb-4 bg-light p-3 rounded">
+                                <h5 class="fw-bold">Responsibilities</h5>
+                                <p>{!! nl2br(e(strip_tags($job->responsibility))) !!}</p>
+                            </div>
+                        @endif
+                        
+                        @if(!empty($job->qualifications))
+                            <div class="mb-4 bg-light p-3 rounded">
+                                <h5 class="fw-bold">Qualifications</h5>
+                                <p>{!! nl2br(e(strip_tags($job->qualifications))) !!}</p>
+                            </div>
+                        @endif
+                        
+                        @if(!empty($job->benefits))
+                            <div class="mb-4 bg-light p-3 rounded">
+                                <h5 class="fw-bold">Benefits</h5>
+                                <p>{!! nl2br(e(strip_tags($job->benefits))) !!}</p>
+                            </div>
+                        @endif
+                        
+                        <div class="border-top mt-4 pt-3 text-end">
+                            @if (Auth::check())
+                                <a href="#" onclick="saveJob({{ $job->id }});" class="btn btn-outline-secondary me-2 hover:bg-gray-200 transition">Save</a> 
+                            @endif
+            
+                            @if (Auth::check())
+                                <a href="#" onclick="applyJob({{ $job->id }})" class="btn btn-primary hover:bg-blue-600 transition">Apply Now</a>                  
+                            @else
+                                <a href="{{ route('account.login') }}" class="btn btn-primary hover:bg-blue-600 transition">Login to apply</a>  
+                            @endif
+                        </div>
+                    </div>    
                 </div>
-                @endif 
+            
+                @if (Auth::user() && Auth::user()->id == $job->user_id)
+                    <div class="bg-white shadow-sm rounded-lg overflow-hidden w-full mt-4">
+                        <div class="p-6">
+                            <!-- Applicants Header -->
+                            <h4 class="text-xl font-bold text-gray-800 mb-4">Applicants</h4>
+                    
+                            <!-- Applicants Table -->
+                            <div class="overflow-x-auto">
+                                <table class="min-w-full table-auto bg-white rounded-md">
+                                    <thead>
+                                        <tr class="text-left text-sm font-semibold text-gray-600 border-b border-gray-200">
+                                            <th class="py-3 px-4">Name</th>
+                                            <th class="py-3 px-4">Email</th>
+                                            <th class="py-3 px-4">Phone</th>
+                                            <th class="py-3 px-4">Applied Date</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="text-gray-700">
+                                        @if ($applications->isNotEmpty())
+                                            @foreach ($applications as $application)
+                                                <tr class="border-b hover:bg-gray-100 transition">
+                                                    <td class="py-3 px-4">
+                                                        <div class="sm:hidden font-semibold text-gray-600">Name:</div>
+                                                        {{ $application->user->name }}
+                                                    </td>
+                                                    
+                                                    <td class="py-3 px-4">
+                                                        <div class="sm:hidden font-semibold text-gray-600">Email:</div>
+                                                        {{ $application->user->email }}
+                                                    </td>
+                                                    
+                                                    <td class="py-3 px-4">
+                                                        <div class="sm:hidden font-semibold text-gray-600">Phone:</div>
+                                                        {{ $application->user->mobile }}
+                                                    </td>
+                                                    
+                                                    <td class="py-3 px-4">
+                                                        <div class="sm:hidden font-semibold text-gray-600">Applied Date:</div>
+                                                        {{ \Carbon\Carbon::parse($application->applied_date)->format('d M, Y') }}
+                                                    </td>
+                                                </tr>
+                                            @endforeach
+                                        @else
+                                            <tr>
+                                                <td colspan="4" class="py-6 text-center text-gray-500">No applicants found.</td>
+                                            </tr>
+                                        @endif
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
                 @endif
             </div>
+            
+            <!-- Job Summary and Company Info Section -->
             <div class="col-md-4">
-                <div class="card shadow border-0">
-                    <div class="job_sumary">
-                        <div class="summery_header pb-1 pt-4">
-                            <h3>Job Summery</h3>
-                        </div>
-                        <div class="job_content pt-3">
-                            <ul>
-                                <li>Published on: <span>{{ \Carbon\Carbon::parse($job->created_at)->format('d M, Y') }}</span></li>
-                                <li>Vacancy: <span>{{ $job->vacancy }}</span></li>
-                                
+                <!-- Job Summary -->
+                <div class="card shadow-sm border-0 mb-4">
+                    <div class="p-4">
+                        <h5 class="fw-bold">Job Summary</h5>
+                        <ul class="list-unstyled mt-3">
+                            @if(!empty($job->created_at))
+                                <li class="d-flex align-items-center mb-2">
+                                    <i class="fa fa-calendar-check me-2" aria-hidden="true"></i>
+                                    <strong>Published on:</strong> <span>&nbsp;{{ $job->created_at->format('d M, Y') }}</span>
+                                </li>
+                            @endif
 
-                                @if (!empty($job->salary))
-                                <li>Salary: <span>{{ $job->salary }}</span></li>
-                                @endif
+                            @if(!empty($job->vacancy))
+                                <li class="d-flex align-items-center mb-2">
+                                    <i class="fa fa-users me-2" aria-hidden="true"></i>
+                                    <strong>Vacancy:</strong> <span>&nbsp;{{ $job->vacancy }}</span>
+                                </li>
+                            @endif
 
-                                <li>Location: <span>{{ $job->location }}</span></li>
-                                <li>Job Nature: <span> {{ $job->jobType->name }}</span></li>
-                            </ul>
-                        </div>
+                            @if(!empty($job->salary))
+                                <li class="d-flex align-items-center mb-2">
+                                    <i class="fa fa-dollar-sign me-2" aria-hidden="true"></i>
+                                    <strong>Salary:</strong> <span>&nbsp;{{ $job->salary }}</span>
+                                </li>
+                            @endif
+
+                            @if(!empty($job->location))
+                                <li class="d-flex align-items-center mb-2">
+                                    <i class="fa fa-map-marker-alt me-2" aria-hidden="true"></i>
+                                    <strong>Location:</strong> <span>&nbsp;{{ $job->location }}</span>
+                                </li>
+                            @endif
+
+                            @if(!empty($job->jobType->name))
+                                <li class="d-flex align-items-center mb-2">
+                                    <i class="fa fa-briefcase me-2" aria-hidden="true"></i>
+                                    <strong>Job Type:</strong> <span>&nbsp;{{ $job->jobType->name }}</span>
+                                </li>
+                            @endif
+                        </ul>
                     </div>
                 </div>
-                <div class="card shadow border-0 my-4">
-                    <div class="job_sumary">
-                        <div class="summery_header pb-1 pt-4">
-                            <h3>Company Details</h3>
-                        </div>
-                        <div class="job_content pt-3">
-                            <ul>
-                                <li>Name: <span>{{ $job->company_name }}</span></li>
 
-                                @if (!empty($job->company_location))
-                                <li>Locaion: <span>{{ $job->company_location }}</span></li>
-                                @endif
-
-                                @if (!empty($job->company_website))
-                                <li>Webite: <span><a href="{{ $job->company_website }}">{{ $job->company_website }}</a></span></li>
-                                @endif
-
-                            </ul>
-                        </div>
+                <!-- Company Details -->
+                <div class="card shadow-sm border-0">
+                    <div class="p-4">
+                        <h5 class="fw-bold">Company Details</h5>
+                        <ul class="list-unstyled mt-3">
+                            @if(!empty($job->company_name))
+                                <li class="d-flex align-items-center mb-2">
+                                    <i class="fa fa-building me-2" aria-hidden="true"></i>
+                                    <strong>Name:</strong> <span>&nbsp;{{ $job->company_name }}</span>
+                                </li>
+                            @endif
+                            @if(!empty($job->company_location))
+                                <li class="d-flex align-items-center mb-2">
+                                    <i class="fa fa-map-marker-alt me-2" aria-hidden="true"></i>
+                                    <strong>Location:</strong> <span>&nbsp;{{ $job->company_location }}</span>
+                                </li>
+                            @endif
+                            @if(!empty($job->company_website))
+                                <li class="d-flex align-items-center mb-2">
+                                    <i class="fa fa-globe me-2" aria-hidden="true"></i>
+                                    <strong>Website:</strong> 
+                                    <a href="{{ $job->company_website }}" target="_blank" class="text-decoration-none text-primary">
+                                        &nbsp;{{ $job->company_website }}
+                                    </a>
+                                </li>
+                            @endif
+                        </ul>
                     </div>
                 </div>
             </div>
         </div>
     </div>
+    
 </section>
-
 @endsection
+@section('content')
+    <div id="message-container" class="{{ session('success') || session('error') ? '' : 'hidden' }} fixed top-4 left-1/2 transform -translate-x-1/2 z-50 transition duration-300 {{ session('success') ? 'bg-green-500' : 'bg-red-500' }} text-white p-4 rounded-md">
+        <span id="message-text">{{ session('success') ?? session('error') }}</span>
+    </div>
 
-@section('customJs')
-<script type="text/javascript">
-function applyJob(id){
-    if (confirm("Are you sure you want to apply on this job?")) {
-        $.ajax({
-            url : '{{ route("applyJob") }}',
-            type: 'post',
-            data: {id:id},
-            dataType: 'json',
-            success: function(response) {
-                window.location.href = "{{ url()->current() }}";
-            } 
-        });
-    }
-}
+    <!-- Your other HTML content goes here -->
 
-function saveJob(id){
-    $.ajax({
-        url : '{{ route("saveJob") }}',
-        type: 'post',
-        data: {id:id},
-        dataType: 'json',
-        success: function(response) {
-            window.location.href = "{{ url()->current() }}";
-        } 
-    });
-}
-</script>
+    @section('customJs')
+    <script type="text/javascript">
+        const messageDuration = 3000; // Duration in milliseconds (3 seconds)
+
+        function showMessage(message, isError = false) {
+            const messageContainer = document.getElementById('message-container');
+            const messageText = document.getElementById('message-text');
+
+            messageText.innerText = message;
+            messageContainer.className = `fixed top-4 left-1/2 transform -translate-x-1/2 p-4 rounded-md z-50 transition duration-300 ${isError ? 'bg-red-500' : 'bg-green-500'} text-white`;
+            messageContainer.classList.remove('hidden');
+
+            setTimeout(() => {
+                messageContainer.classList.add('hidden');
+            }, messageDuration);
+        }
+
+        function applyJob(id) {
+            if (confirm("Are you sure you want to apply for this job?")) {
+                document.getElementById('loading-spinner').style.display = 'block';
+
+                $.ajax({
+                    url: '{{ route("applyJob") }}',
+                    type: 'POST',
+                    data: {
+                        id: id,
+                        _token: '{{ csrf_token() }}'
+                    },
+                    dataType: 'json',
+                    success: function(response) {
+                        document.getElementById('loading-spinner').style.display = 'none';
+                        showMessage(response.message, !response.status);
+                        if (response.status) {
+                            setTimeout(() => window.location.reload(), 2000);
+                        }
+                    },
+                    error: function(xhr) {
+                        document.getElementById('loading-spinner').style.display = 'none';
+                        showMessage('An error occurred: ' + (xhr.responseJSON?.message || 'Please try again.'), true);
+                    }
+                });
+            }
+        }
+
+        function saveJob(id) {
+            document.getElementById('loading-spinner').style.display = 'block';
+
+            $.ajax({
+                url: '{{ route("saveJob") }}',
+                type: 'POST',
+                data: {
+                    id: id,
+                    _token: '{{ csrf_token() }}'
+                },
+                dataType: 'json',
+                success: function(response) {
+                    document.getElementById('loading-spinner').style.display = 'none';
+                    showMessage(response.message, !response.status);
+                    if (response.status) {
+                        setTimeout(() => window.location.reload(), 2000);
+                    }
+                },
+                error: function(xhr) {
+                    document.getElementById('loading-spinner').style.display = 'none';
+                    showMessage('An error occurred: ' + (xhr.responseJSON?.message || 'Please try again.'), true);
+                }
+            });
+        }
+    </script>
+    @endsection
 @endsection

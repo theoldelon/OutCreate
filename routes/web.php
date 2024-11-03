@@ -64,7 +64,7 @@ Route::group(['prefix' => 'account'], function(){
     Route::group(['middleware' => 'auth'], function(){
         Route::get('/profile',[AccountController::class,'profile'])->name('account.profile');
         Route::put('/update-profile',[AccountController::class,'updateProfile'])->name('account.updateProfile');
-        Route::get('/logout',[AccountController::class,'logout'])->name('account.logout');   
+        Route::post('/logout',[AccountController::class,'logout'])->name('account.logout');   
         Route::post('/update-profile-pic',[AccountController::class,'updateProfilePic'])->name('account.updateProfilePic');     
         Route::get('/create-job',[AccountController::class,'createJob'])->name('account.createJob');   
         Route::post('/save-job',[AccountController::class,'saveJob'])->name('account.saveJob');   
@@ -76,9 +76,9 @@ Route::group(['prefix' => 'account'], function(){
 
         Route::post('/remove-job-application',[AccountController::class,'removeJobs'])->name('account.removeJobs');   
         Route::get('/saved-jobs',[AccountController::class,'savedJobs'])->name('account.savedJobs');  
-        Route::post('/remove-saved-job',[AccountController::class,'removeSavedJob'])->name('account.removeSavedJob');   
+        Route::post('/remove-saved-job', [AccountController::class, 'removeSavedJob'])->name('account.removeSavedJob'); 
         Route::post('/update-password',[AccountController::class,'updatePassword'])->name('account.updatePassword');   
-
+        Route::get('/profile/{id}', [AccountController::class, 'show'])->name('account.show');
     });
 
 });
