@@ -27,38 +27,48 @@ class AccountController extends Controller
         return view('front.account.registration');
     }
 
+    public function registrationRole() {
+        return view('front.account.registerRole');
+    }
+
     // This method will save a user
     public function processRegistration(Request $request) {
-        $validator = Validator::make($request->all(),[
+        $validator = Validator::make($request->all(), [
             'name' => 'required',
             'email' => 'required|email|unique:users,email',
             'password' => 'required|min:5|same:confirm_password',
             'confirm_password' => 'required',
+            'role' => 'required|in:freelancer,client', // Ensure the role is either freelancer or client
         ]);
-
+    
         if ($validator->passes()) {
-
+            
+            // Create a new user and set the role based on the input
             $user = new User();
             $user->name = $request->name;
             $user->email = $request->email;
             $user->password = Hash::make($request->password);
-            $user->name = $request->name;
+            $user->role = $request->role; // Dynamically assign the role based on the form input
             $user->save();
-
-            session()->flash('success','You have registerd successfully.');
-
+    
+            // Flash success message
+            session()->flash('success','You have registered successfully.');
+    
+            // Return response with success status
             return response()->json([
                 'status' => true,
                 'errors' => []
             ]);
-
+            
         } else {
+            // Return response with validation errors
             return response()->json([
                 'status' => false,
                 'errors' => $validator->errors()
             ]);
         }
     }
+    
 
     // This method will show user login page
     public function login() {

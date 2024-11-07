@@ -85,7 +85,7 @@
                                     </a>
                                 </li>
                                 <li>
-                                    <a class="dropdown-item" href="{{ route('account.registration') }}">
+                                    <a class="dropdown-item" href="{{ route('account.registrationRole') }}">
                                         <i class="fas fa-user-plus"></i> Register
                                     </a>
                                 </li>

@@ -15,9 +15,6 @@
                             <div>
                                 <h3 class="fs-4 mb-1">My Jobs</h3>
                             </div>
-                            <div style="margin-top: -10px;">
-                                <a href="{{ route("account.createJob") }}" class="btn btn-primary">Post a Job</a>
-                            </div>
                             
                         </div>
                         <div class="table-responsive">
