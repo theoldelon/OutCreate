@@ -90,7 +90,6 @@
                     </div>
                 </form>
             </div>
-
             <div class="col-md-8 col-lg-9">
                 <div class="job_listing_area">
                     <div class="job_lists">
@@ -100,8 +99,11 @@
                                     <div class="col-md-12 mb-4">
                                         <div class="card border-0 p-3 shadow mb-4" style="min-height: 350px;">
                                             <div class="card-body">
+                                                <!-- Job Title and Description -->
                                                 <h3 class="border-0 fs-5 pb-2 mb-0">{{ $job->title }}</h3>
                                                 <p>{{ Str::words(strip_tags($job->description), 15, '...') }}</p>
+            
+                                                <!-- Job Info Section (Location, Type, Category, Salary) -->
                                                 <div class="bg-light p-3 border">
                                                     <p class="mb-0">
                                                         <span class="fw-bolder"><i class="fa fa-map-marker"></i></span>
@@ -119,7 +121,26 @@
                                                         </p>
                                                     @endif
                                                 </div>
+            
+                                                <!-- Job Rating (Assumed) -->
+                                                <div class="mt-3">
+                                                    <span class="fw-bolder">Rating:</span>
+                                                    <div class="d-flex align-items-center">
+                                                        <!-- Rating Stars -->
+                                                        @for ($i = 1; $i <= 5; $i++)
+                                                            <i class="fa fa-star{{ $job->rating >= $i ? ' text-warning' : ' text-muted' }}"></i>
+                                                        @endfor
+                                                    </div>
+                                                </div>
+                                                <!-- Number of Applicants -->
+                                                <div class="mt-3">
+                                                    <span class="fw-bolder">Applicants:</span>
+                                                    <span class="ps-1">
+                                                        {{ $job->applications()->count() }}
+                                                    </span>
+                                                </div>
 
+                                                <!-- View Details Button -->
                                                 <div class="d-grid mt-3">
                                                     <a href="{{ route('jobDetail', $job->id) }}" class="btn btn-primary btn-lg">View Details</a>
                                                 </div>
@@ -127,6 +148,7 @@
                                         </div>
                                     </div>
                                 @endforeach
+                                <!-- Pagination and Job Count -->
                                 <div class="d-flex justify-content-between align-items-center mt-4">
                                     <div>
                                         <span class="text-muted font-light">Showing {{ $jobs->firstItem() }} to {{ $jobs->lastItem() }} of {{ $jobs->total() }} jobs</span>
@@ -142,6 +164,7 @@
                     </div>
                 </div>
             </div>
+            
         </div>
     </div>
 </section>

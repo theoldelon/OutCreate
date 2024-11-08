@@ -93,14 +93,14 @@
                         @endif
                         
                         <div class="border-top mt-4 pt-3 text-end">
-                            @if (Auth::check())
+                            @if (Auth::check() && Auth::user()->role === 'freelancer')
                                 <a href="#" onclick="saveJob({{ $job->id }});" class="btn btn-outline-secondary me-2 hover:bg-gray-200 transition">Save</a> 
                             @endif
             
-                            @if (Auth::check())
-                                <a href="#" onclick="applyJob({{ $job->id }})" class="btn btn-primary hover:bg-blue-600 transition">Apply Now</a>                  
-                            @else
-                                <a href="{{ route('account.login') }}" class="btn btn-primary hover:bg-blue-600 transition">Login to apply</a>  
+                            @if (Auth::check() && Auth::user()->role === 'freelancer')
+                            <a href="#" onclick="applyJob({{ $job->id }})" class="btn btn-primary hover:bg-blue-600 transition">Apply Now</a>
+                            @elseif (!Auth::check())
+                            <a href="{{ route('account.login') }}" class="btn btn-primary hover:bg-blue-600 transition">Login to apply</a>
                             @endif
                         </div>
                     </div>    

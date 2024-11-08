@@ -41,36 +41,54 @@
 </head>
 
 <body data-instant-intensity="mousedown">
-<header>
-    <nav class="navbar navbar-expand-lg navbar-light bg-light shadow py-3">
-        <div class="container">
-            <a class="navbar-brand d-flex align-items-center" href="{{ route('home') }}">
-                <img src="{{ asset('assets/images/outcreate-logos.jpg') }}" alt="" class="logo-img" style="height: 50px; width: 55px; margin-right: 10px; border-radius: 50%;">
-                <span class="fw-bold text-primary">OutCreate</span>
-            </a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarSupportedContent">
-                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ route('jobs') }}"><i class="fas fa-briefcase"></i> Find Jobs</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#"><i class="fas fa-info-circle"></i> How It Works</a>
-                    </li>
-                    @if (Auth::user())
+    <header>
+        <nav class="navbar navbar-expand-lg navbar-light bg-light shadow py-3">
+            <div class="container">
+                <a class="navbar-brand d-flex align-items-center" href="{{ route('home') }}">
+                    <img src="{{ asset('assets/images/outcreate-logos.jpg') }}" alt="OutCreate Logo" class="logo-img" style="height: 50px; width: 55px; margin-right: 10px; border-radius: 50%;">
+                    <span class="fw-bold text-primary">OutCreate</span>
+                </a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                    <!-- General Navigation Links -->
+                    <ul class="navbar-nav me-auto mb-2 mb-lg-0">
                         <li class="nav-item">
-                            <a class="nav-link" href="#"><i class="fas fa-user-tie"></i> Find Clients</a>
+                            <a class="nav-link" href="{{ route('hint') }}"><i class="fas fa-info-circle"></i> How It Works</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="#"><i class="fas fa-user-friends"></i> My Network</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="#"><i class="fas fa-tasks"></i> Jobs</a>
-                        </li>
-                    @endif
-                </ul>
+                            <a class="nav-link" href="{{ route('jobs') }}"><i class="fas fa-briefcase"></i> Browse </a>
+                        </li>  
+                        @if (Auth::check())
+                            <!-- Freelancer-Specific Links -->
+                            @if (Auth::user()->role == 'freelancer' || Auth::user()->role == 'admin')
+                                <li class="nav-item">
+                                    <a class="nav-link" href="#"><i class="fas fa-user-tie"></i> Find Clients</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" href="#"><i class="fas fa-user-friends"></i> My Network</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" href="#"><i class="fas fa-tasks"></i> Jobs</a>
+                                </li>
+                            @endif
+    
+                            <!-- Client-Specific Links -->
+                            @if (Auth::user()->role == 'client' || Auth::user()->role == 'admin')
+                            <li class="nav-item">
+                                <a class="nav-link" href="{{ route('jobs') }}"><i class="fas fa-user-tie"></i> Hire Talents</a>
+                            </li>
+                            
+                                <li class="nav-item">
+                                    <a class="nav-link" href="#"><i class="fas fa-clipboard-list"></i> My Projects</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" href="#"><i class="fas fa-users"></i> Freelancers</a>
+                                </li>
+                            @endif
+                        @endif
+                    </ul>
     
                     <!-- Authentication Links -->
                     <div class="dropdown">
@@ -79,6 +97,7 @@
                         </button>
                         <ul class="dropdown-menu" aria-labelledby="authDropdown">
                             @if (!Auth::check())
+                                <!-- Guest Links -->
                                 <li>
                                     <a class="dropdown-item" href="{{ route('account.login') }}">
                                         <i class="fas fa-sign-in-alt"></i> Login
@@ -90,6 +109,7 @@
                                     </a>
                                 </li>
                             @else
+                                <!-- Admin Dashboard Link for Admin Role -->
                                 @if (Auth::user()->role == 'admin')
                                     <li>
                                         <a class="dropdown-item" href="{{ route('admin.dashboard') }}">
@@ -97,16 +117,20 @@
                                         </a>
                                     </li>
                                 @endif
+                                
+                                <!-- Account Links (Visible to Both Client and Freelancer) -->
                                 <li>
-                                    <a class="dropdown-item" href="{{ route('account.profile') }}">
+                                    <a class="dropdown-item" href="{{ route('account.show', ['id' => Auth::user()->id]) }}">
                                         <i class="fas fa-user"></i> Account
                                     </a>
                                 </li>
+                                @if (Auth::user()->role == 'client' || Auth::user()->role == 'admin')
                                 <li>
                                     <a class="dropdown-item" href="{{ route('account.createJob') }}">
                                         <i class="fas fa-plus-circle"></i> Post a Job
                                     </a>
                                 </li>
+                                @endif
                                 <li>
                                     <a class="dropdown-item" href="#">
                                         <i class="fas fa-bell"></i> Notifications <span class="badge bg-danger"></span>
@@ -125,14 +149,11 @@
                             @endif
                         </ul>
                     </div>
-
+                </div>
             </div>
-        </div>
-    </nav>
+        </nav>
+    </header>
     
-	
-</header>
-
 
 @yield('main')
 

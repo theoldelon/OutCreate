@@ -34,4 +34,9 @@ class HomeController extends Controller
             'newCategories' => $newCategories
         ]);
     }
+
+    public function hint()
+    {
+        return view('front.how-it-works');
+    }
 }
